@@ -1440,7 +1440,7 @@ STEP_API void WINAPI STEPShowOptionDialog(HWND hWnd)
     CPropertySheet page;
     CDlgFileRmpID3v2 dlg1;
     CDlgDefaultValue dlg2;
-    page.SetTitle(CString(STEPGetPluginName()) + " オプション設定");
+    page.SetTitle(CString(STEPGetPluginName()) + _T(" オプション設定"));
     dlg1.m_bRmpID3tagAutoWrite = bOptRmpID3tagAutoWrite;
     dlg1.m_bAutoConvRMP = true;//bOptAutoConvRMP;
     dlg1.m_nSIFieldConvertType = nOptSIFieldConvType;
