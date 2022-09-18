@@ -1,0 +1,55 @@
+name: MSBuild
+
+on:
+  pull_request:
+    types: [synchronize, opened]
+    
+jobs:
+  build:
+    strategy:
+      matrix:
+        arch: ["x64"]
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get short SHA
+        id: slug
+        run: echo "::set-output name=sha7::$(git rev-parse --short HEAD)"
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - run: |
+          msbuild "SuperTagEditor\SuperTagEditor.sln" /m /v:m /p:Configuration=Release /p:Platform="x64" 
+      - name: Upload zip
+        uses: actions/upload-artifact@v3
+        with:
+          name: STEP_J-x64-${{ steps.slug.outputs.sha7 }}
+          path: SuperTagEditor\_bin
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Re-zip artifacts
+        id: zip
+        run: |
+          for artifact in artifacts/*; do
+            7z a ${artifact}.zip "./${artifact}/*"
+            if [ $(stat -c %s ${artifact}.zip) -le 100000 ]; then
+              echo "Error: Archive ${artifact}.zip too small!"
+              exit 1
+            fi
+          done
+          echo "::set-output name=tag_name::CI-${GITHUB_SHA::7}"
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create ${{ steps.zip.outputs.tag_name }} artifacts/*.zip -p --target $GITHUB_SHA --title '${{ steps.zip.outputs.tag_name }}'
