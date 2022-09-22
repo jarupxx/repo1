@@ -248,7 +248,7 @@ bool CSHBrowseForFolder::Exec(TCHAR *sLocal, int size)
     bi.pidlRoot = pidlRoot;
     bi.pszDisplayName = lpBuffer;
     bi.lpszTitle = _T("フォルダを選択して下さい。");
-    bi.ulFlags = 0;
+    bi.ulFlags = BIF_EDITBOX;
     bi.lpfn = CallbackSelectDir;        // コールバック関数のアドレスを設定
     bi.lParam = (LPARAM)this;
     _tcsncpy_s(m_szInitialFolder, sLocal, _TRUNCATE);
