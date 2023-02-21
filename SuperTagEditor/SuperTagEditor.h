@@ -15,7 +15,7 @@
 #include "resource.h"       // メイン シンボル
 
 #define PROG_NAME       _T("STEP_J")     // プログラム名
-#define PROG_VERSION    _T("1.02")  // バージョン
+#define PROG_VERSION    _T("1.03")  // バージョン
 #define PROG_COPYRIGHT  _T("Copyright (C) 2022 jarupxx")
 #define PROG_URL        _T("https://github.com/jarupxx/STEP_J/")
 // #define PROG_MAIL       _T("example@co.jp")
