@@ -544,9 +544,18 @@ BOOL GetPointerToMetadata(FILE_INFO *pFileMP3, UINT64 *pPointerToMetadata, BYTE 
         return FALSE;
     }
 
+    // ファイルサイズ取得
+    struct _stat64 Stat;
+    _fstat64(_fileno(fp), &Stat);
+
     // Pointer To Metadata Chunkまでシーク
     _fseeki64(fp, 20, SEEK_SET);
     fread(&nMetaPos, 1, 8, fp);
+
+    // メタデータの位置がファイルサイズを超えてたらタグ無しで扱う ※救済処置
+    if(nMetaPos >= Stat.st_size){
+        nMetaPos = 0;
+    }
 
     // Pointer To Metadataが設定されているならID3V2Head位置までシーク
     if(nMetaPos > 0){
@@ -1069,11 +1078,13 @@ bool DeleteTagID3v2(const TCHAR *sFileName, HWND hWnd)
 {
     // ID3v2 タグの取得
     CId3tagv2    id3v2/*(USE_SCMPX_GENRE_ANIMEJ)*/;
+#if 0	// 強制削除にする為、チェック不要にする
     if (id3v2.Load(sFileName) != ERROR_SUCCESS    // 読み込み失敗
     ||    id3v2.IsEnable() == FALSE            // ID3v2 ではない
     ||    !TRUE/*id3v2.IsSafeVer()*/) {                // 未対応のバージョン
         return false;
     }
+#endif
     // ID3v2 タグの削除
     if (id3v2.DelTag(/*hWnd,*/ sFileName) != ERROR_SUCCESS) {
         return false;

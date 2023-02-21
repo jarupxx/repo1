@@ -2068,12 +2068,12 @@ DWORD CId3tagv2::DelTag(LPCTSTR szFileName)
 
     TCHAR szTempPath[MAX_PATH];
     TCHAR szTempFile[MAX_PATH];
-
+#if 0	// 強制削除にする為、チェック不要にする
     if(!m_bEnable)
     {
         return -1;
     }
-
+#endif
     //==================元ファイルをメモリに保存==================
     HANDLE hFile = CreateFile(
                             szFileName,
