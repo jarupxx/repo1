@@ -217,9 +217,9 @@ boolean Flac_Tag_Read_File_Tag (const TCHAR *filename, File_Tag *FileTag)
     TCHAR                                    *string = NULL;
     char                                     *string1 = NULL;
     unsigned int                             i;
-
+#if 0	// FLAC Ver 1.4.2から削除されている
     flac_internal_set_utf8_filenames(true);
-
+#endif
     flac_error_msg = NULL;
     char *filename_utf8 = convert_to_utf8(filename);
     iter = FLAC__metadata_simple_iterator_new();

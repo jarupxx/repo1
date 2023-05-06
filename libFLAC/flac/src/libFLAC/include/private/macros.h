@@ -1,5 +1,5 @@
 /* libFLAC - Free Lossless Audio Codec library
- * Copyright (C) 2012-2016  Xiph.org Foundation
+ * Copyright (C) 2012-2022  Xiph.Org Foundation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -51,8 +51,10 @@
 /* Whatever other unix that has sys/param.h */
 #elif defined(HAVE_SYS_PARAM_H)
 #include <sys/param.h>
+#if defined(MIN) && defined(MAX)
 #define flac_max(a,b) MAX(a,b)
 #define flac_min(a,b) MIN(a,b)
+#endif
 
 /* Windows VS has them in stdlib.h.. XXX:Untested */
 #elif defined(_MSC_VER)

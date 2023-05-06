@@ -28,9 +28,6 @@
     <ClCompile Include="lpc_intrin_avx2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lpc_intrin_sse.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="lpc_intrin_sse2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -73,7 +70,19 @@
     <ClCompile Include="window.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windows_unicode_filenames.c">
+    <ClCompile Include="fixed_intrin_avx2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fixed_intrin_sse42.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lpc_intrin_fma.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lpc_intrin_neon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\share\win_utf8_io\win_utf8_io.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -177,11 +186,6 @@
     <ClInclude Include="include\private\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="ia32\cpu_asm.nasm" />
-    <CustomBuild Include="ia32\fixed_asm.nasm" />
-    <CustomBuild Include="ia32\lpc_asm.nasm" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

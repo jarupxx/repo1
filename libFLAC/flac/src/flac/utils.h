@@ -1,6 +1,6 @@
 /* flac - Command-line FLAC encoder/decoder
  * Copyright (C) 2002-2009  Josh Coalson
- * Copyright (C) 2011-2016  Xiph.Org Foundation
+ * Copyright (C) 2011-2022  Xiph.Org Foundation
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +29,10 @@
 #include <stdio.h> /* for FILE */
 
 typedef enum { FORMAT_RAW, FORMAT_WAVE, FORMAT_WAVE64, FORMAT_RF64, FORMAT_AIFF, FORMAT_AIFF_C, FORMAT_FLAC, FORMAT_OGGFLAC } FileFormat;
+static const char * const FileFormatString[] = { " raw", " WAVE", " Wave64", "n RF64", "n AIFF", "n AIFF-C", " FLAC", "n Ogg FLAC" };
+
+typedef enum { SUBFORMAT_UNSPECIFIED = 0, SUBFORMAT_WAVE_PCM, SUBFORMAT_WAVE_EXTENSIBLE, SUBFORMAT_AIFF_C_NONE, SUBFORMAT_AIFF_C_SOWT } FileSubFormat;
+
 
 typedef struct {
 	FLAC__bool is_relative; /* i.e. specification string started with + or - */
