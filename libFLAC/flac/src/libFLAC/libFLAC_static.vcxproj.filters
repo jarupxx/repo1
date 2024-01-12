@@ -85,6 +85,9 @@
     <ClCompile Include="..\share\win_utf8_io\win_utf8_io.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stream_encoder_framing.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\private\all.h">

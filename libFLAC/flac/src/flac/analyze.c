@@ -1,6 +1,6 @@
 /* flac - Command-line FLAC encoder/decoder
  * Copyright (C) 2000-2009  Josh Coalson
- * Copyright (C) 2011-2022  Xiph.Org Foundation
+ * Copyright (C) 2011-2023  Xiph.Org Foundation
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -152,18 +152,20 @@ void flac__analyze_frame(const FLAC__Frame *frame, uint32_t frame_number, FLAC__
 				update_stats(&all_, stats.buckets[i].residual, stats.buckets[i].count);
 			}
 
-			/* write the subframe */
-			flac_snprintf(outfilename, sizeof (outfilename), "f%06u.s%u.gp", frame_number, channel);
-			compute_stats(&stats);
+			if(stats.nsamples > 0) {
+				/* write the subframe */
+				flac_snprintf(outfilename, sizeof (outfilename), "f%06u.s%u.gp", frame_number, channel);
+				compute_stats(&stats);
 
-			(void)dump_stats(&stats, outfilename);
+				(void)dump_stats(&stats, outfilename);
+			}
 		}
 	}
 }
 
 void flac__analyze_finish(analysis_options aopts)
 {
-	if(aopts.do_residual_gnuplot) {
+	if(aopts.do_residual_gnuplot && all_.nsamples > 0) {
 		compute_stats(&all_);
 		(void)dump_stats(&all_, "all");
 	}
@@ -243,5 +245,8 @@ FLAC__bool dump_stats(const subframe_stats_t *stats, const char *filename)
 	fprintf(outfile, "pause -1 'waiting...'\n");
 
 	fclose(outfile);
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+	unlink(filename);
+#endif
 	return true;
 }

@@ -237,6 +237,7 @@
     <ClCompile Include="ogg_helper.c" />
     <ClCompile Include="ogg_mapping.c" />
     <ClCompile Include="stream_decoder.c" />
+    <ClCompile Include="stream_encoder_framing.c" />
     <ClCompile Include="window.c" />
   </ItemGroup>
   <ItemGroup>

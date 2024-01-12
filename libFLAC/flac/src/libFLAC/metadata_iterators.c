@@ -1,6 +1,6 @@
 /* libFLAC - Free Lossless Audio Codec library
  * Copyright (C) 2001-2009  Josh Coalson
- * Copyright (C) 2011-2022  Xiph.Org Foundation
+ * Copyright (C) 2011-2023  Xiph.Org Foundation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1142,6 +1142,12 @@ static FLAC__bool chain_merge_adjacent_padding_(FLAC__Metadata_Chain *chain, FLA
 static FLAC__off_t chain_prepare_for_write_(FLAC__Metadata_Chain *chain, FLAC__bool use_padding)
 {
 	FLAC__off_t current_length = chain_calculate_length_(chain);
+	FLAC__Metadata_Node * i;
+
+	/* Check all is_last settings on the blocks */
+	for(i = chain->head; i->next != NULL; i = i->next)
+		i->data->is_last = 0;
+	chain->tail->data->is_last = 1;
 
 	if(use_padding) {
 		/* if the metadata shrank and the last block is padding, we just extend the last padding block */
@@ -2337,7 +2343,7 @@ FLAC__Metadata_SimpleIteratorStatus read_metadata_block_data_vorbis_comment_entr
 	if(max_length < entry->length) {
 		entry->length = 0;
 		return FLAC__METADATA_SIMPLE_ITERATOR_STATUS_BAD_METADATA;
-	} else max_length -= entry->length;
+	}
 
 	if(0 != entry->entry)
 		free(entry->entry);
@@ -2407,7 +2413,7 @@ FLAC__Metadata_SimpleIteratorStatus read_metadata_block_data_vorbis_comment_cb_(
 			return FLAC__METADATA_SIMPLE_ITERATOR_STATUS_SEEK_ERROR;
 	}
 
-	return FLAC__METADATA_SIMPLE_ITERATOR_STATUS_OK;
+	return status;
 }
 
 FLAC__Metadata_SimpleIteratorStatus read_metadata_block_data_cuesheet_track_cb_(FLAC__IOHandle handle, FLAC__IOCallback_Read read_cb, FLAC__StreamMetadata_CueSheet_Track *track)
@@ -2512,7 +2518,7 @@ FLAC__Metadata_SimpleIteratorStatus read_metadata_block_data_cuesheet_cb_(FLAC__
 	block->num_tracks = unpack_uint32_(buffer, len);
 
 	if(block->num_tracks == 0) {
-		block->tracks = 0;
+		return FLAC__METADATA_SIMPLE_ITERATOR_STATUS_BAD_METADATA;
 	}
 	else if(0 == (block->tracks = calloc(block->num_tracks, sizeof(FLAC__StreamMetadata_CueSheet_Track))))
 		return FLAC__METADATA_SIMPLE_ITERATOR_STATUS_MEMORY_ALLOCATION_ERROR;

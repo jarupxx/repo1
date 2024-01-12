@@ -1,6 +1,6 @@
 /* flac - Command-line FLAC encoder/decoder
  * Copyright (C) 2000-2009  Josh Coalson
- * Copyright (C) 2011-2022  Xiph.Org Foundation
+ * Copyright (C) 2011-2023  Xiph.Org Foundation
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -99,7 +99,12 @@ static FLAC__bool compare_data_(FILE *fin, FILE *fout, size_t size, const char *
 
 static FLAC__bool append_block_(foreign_metadata_t *fm, FLAC__off_t offset, FLAC__uint32 size, const char **error)
 {
-	foreign_block_t *fb = safe_realloc_nofree_muladd2_(fm->blocks, sizeof(foreign_block_t), /*times (*/fm->num_blocks, /*+*/1/*)*/);
+	foreign_block_t *fb;
+	if(size >= ((1u << FLAC__STREAM_METADATA_LENGTH_LEN) - FLAC__STREAM_METADATA_APPLICATION_ID_LEN/8)) {
+		if(error) *error = "found foreign metadata chunk is too large (max is 16MiB per chunk)";
+		return false;
+	}
+	fb = safe_realloc_nofree_muladd2_(fm->blocks, sizeof(foreign_block_t), /*times (*/fm->num_blocks, /*+*/1/*)*/);
 	if(fb) {
 		fb[fm->num_blocks].offset = offset;
 		fb[fm->num_blocks].size = size;

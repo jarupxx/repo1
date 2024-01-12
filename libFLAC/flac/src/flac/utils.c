@@ -1,6 +1,6 @@
 /* flac - Command-line FLAC encoder/decoder
  * Copyright (C) 2002-2009  Josh Coalson
- * Copyright (C) 2011-2022  Xiph.Org Foundation
+ * Copyright (C) 2011-2023  Xiph.Org Foundation
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,8 +56,18 @@ static FLAC__bool local__parse_uint64_(const char *s, FLAC__uint64 *value)
 		return false;
 
 	while('\0' != (c = *s++))
-		if(c >= '0' && c <= '9')
-			ret = ret * 10 + (c - '0');
+		if(c >= '0' && c <= '9') {
+			if(ret > UINT64_MAX / 10) /* check for overflow */
+				return false;
+			else if(ret == UINT64_MAX / 10) {
+				FLAC__uint64 tmp = ret;
+				ret = ret * 10 + (c - '0');
+				if(ret < tmp)
+					return false;
+			}
+			else
+				ret = ret * 10 + (c - '0');
+		}
 		else
 			return false;
 
@@ -300,6 +310,8 @@ FLAC__bool flac__utils_parse_skip_until_specification(const char *s, utils__Skip
 
 		if(local__parse_uint64_(s, &val)) {
 			spec->value_is_samples = true;
+			if(val > INT64_MAX)
+				return false;
 			spec->value.samples = (FLAC__int64)val;
 			if(is_negative)
 				spec->value.samples = -(spec->value.samples);
@@ -318,13 +330,17 @@ FLAC__bool flac__utils_parse_skip_until_specification(const char *s, utils__Skip
 	return true;
 }
 
-void flac__utils_canonicalize_skip_until_specification(utils__SkipUntilSpecification *spec, uint32_t sample_rate)
+FLAC__bool flac__utils_canonicalize_skip_until_specification(utils__SkipUntilSpecification *spec, uint32_t sample_rate)
 {
 	FLAC__ASSERT(0 != spec);
 	if(!spec->value_is_samples) {
-		spec->value.samples = (FLAC__int64)(spec->value.seconds * (double)sample_rate);
+		double samples = spec->value.seconds * (double)sample_rate;
+		if(samples >= (double)INT64_MAX || samples <= (double)INT64_MIN)
+			return false;
+		spec->value.samples = (FLAC__int64)(samples);
 		spec->value_is_samples = true;
 	}
+	return true;
 }
 
 FLAC__bool flac__utils_parse_cue_specification(const char *s, utils__CueSpecification *spec)

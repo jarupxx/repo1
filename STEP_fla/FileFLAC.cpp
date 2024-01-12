@@ -175,7 +175,7 @@ char* convert_to_utf8(const TCHAR* t_str)
  * Declaration *
  ***************/
 
-#define MULTIFIELD_SEPARATOR _T(" - ")
+#define MULTIFIELD_SEPARATOR _T(";;")
 
 /* FLAC uses Ogg Vorbis comments
  * Ogg Vorbis fields names :
@@ -484,24 +484,32 @@ boolean Flac_Tag_Write_File_Tag (const TCHAR *filename, File_Tag *FileTag)
     else
         vc_block = FLAC__metadata_simple_iterator_get_block(iter);
 
-    int i;
+    int i,j;
     for(i = 0; i < FLA_LAST; i++){
-        FLAC__metadata_object_vorbiscomment_remove_entry_matching(vc_block, g_field_names[i]);
+        //FIXME: 同一タグの数を調べて必要な回数削除する
+        for(j = 0; j < 8; j++){
+            FLAC__metadata_object_vorbiscomment_remove_entry_matching(vc_block, g_field_names[i]);
+        }
         TCHAR *value = FileTag->values[i];
         if(!value || !*value){
             continue;
         }
         char *value_utf8 = convert_to_utf8(value);
-        int field_size = strlen(g_field_names[i]) +
-                         strlen(value_utf8) + 1 + 1;//"=" の分だけ1バイト余計に確保
-        string = (char*)malloc(field_size);
-        strcpy_s(string, field_size, g_field_names[i]);
-        strcat_s(string, field_size, "=");
-        strcat_s(string, field_size, value_utf8);
-        field.entry = (unsigned char*)string;
-        field.length = strlen(string);
-        FLAC__metadata_object_vorbiscomment_insert_comment(vc_block,vc_block->data.vorbis_comment.num_comments,field,true);
-        free(string);
+        char *token = strtok(value_utf8, /*MULTIFIELD_SEPARATOR*/";;");
+        while (token != NULL) {
+            int field_size = strlen(g_field_names[i]) +
+                             strlen(token) + 1 + 1;//"=" の分だけ1バイト余計に確保
+            string = (char*)malloc(field_size);
+            strcpy_s(string, field_size, g_field_names[i]);
+            strcat_s(string, field_size, "=");
+            strcat_s(string, field_size, token);
+            field.entry = (unsigned char*)string;
+            field.length = strlen(string);
+            FLAC__metadata_object_vorbiscomment_insert_comment(vc_block,vc_block->data.vorbis_comment.num_comments,field,true);
+            free(string);
+
+            token = strtok(NULL, /*MULTIFIELD_SEPARATOR*/";;");
+        }
         free(value_utf8);
         //free(string1);
 
